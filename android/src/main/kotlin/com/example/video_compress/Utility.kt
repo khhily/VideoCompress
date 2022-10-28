@@ -32,10 +32,22 @@ class Utility(private val channelName: String) {
     }
 
     fun getMediaInfoJson(context: Context, path: String): JSONObject {
-        val file = File(path)
+        // if the path is a url
+        val isUrl = Regex("^http(s)?://").containsMatchIn(path)
+
+        val file: File? = if (isUrl) {
+            null
+        } else {
+            File(path)
+        }
+
         val retriever = MediaMetadataRetriever()
 
-        retriever.setDataSource(context, Uri.fromFile(file))
+        if (isUrl) {
+            retriever.setDataSource(path, HashMap())
+        } else {
+            retriever.setDataSource(context, Uri.fromFile(file))
+        }
 
         val durationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
         val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) ?: ""
@@ -45,7 +57,6 @@ class Utility(private val channelName: String) {
         val duration = java.lang.Long.parseLong(durationStr)
         var width = java.lang.Long.parseLong(widthStr)
         var height = java.lang.Long.parseLong(heightStr)
-        val filesize = file.length()
         val orientation = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)
         } else {
@@ -68,7 +79,7 @@ class Utility(private val channelName: String) {
         json.put("width", width)
         json.put("height", height)
         json.put("duration", duration)
-        json.put("filesize", filesize)
+        json.put("filesize", file?.length() ?: 0)
         if (ori != null) {
             json.put("orientation", ori)
         }
@@ -81,7 +92,7 @@ class Utility(private val channelName: String) {
         val retriever = MediaMetadataRetriever()
 
         try {
-            retriever.setDataSource(path)
+            retriever.setDataSource(path, HashMap())
             bitmap = retriever.getFrameAtTime(position, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
         } catch (ex: IllegalArgumentException) {
             result.error(channelName, "Assume this is a corrupt video file", null)
