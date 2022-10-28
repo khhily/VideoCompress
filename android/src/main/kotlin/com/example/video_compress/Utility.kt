@@ -33,7 +33,7 @@ class Utility(private val channelName: String) {
 
     fun getMediaInfoJson(context: Context, path: String): JSONObject {
         // if the path is a url
-        val isUrl = Regex("^http(s)?://").containsMatchIn(path)
+        val isUrl = isUrl(path)
 
         val file: File? = if (isUrl) {
             null
@@ -92,7 +92,11 @@ class Utility(private val channelName: String) {
         val retriever = MediaMetadataRetriever()
 
         try {
-            retriever.setDataSource(path, HashMap())
+            if (isUrl(path)) {
+                retriever.setDataSource(path, HashMap())
+            } else {
+                retriever.setDataSource(path)
+            }
             bitmap = retriever.getFrameAtTime(position, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
         } catch (ex: IllegalArgumentException) {
             result.error(channelName, "Assume this is a corrupt video file", null)
@@ -136,6 +140,10 @@ class Utility(private val channelName: String) {
             }
         }
         return fileName
+    }
+
+    fun isUrl(path: String): Boolean {
+        return Regex("^http(s)?://").containsMatchIn(path)
     }
 
     fun deleteAllCache(context: Context, result: MethodChannel.Result) {
