@@ -110,8 +110,8 @@ public class SwiftVideoCompressPlugin: NSObject, FlutterPlugin {
         
         let size = track.naturalSize.applying(track.preferredTransform)
         
-        let width = abs(size.width)
-        let height = abs(size.height)
+        let width = size.width != nil ? abs(size.width) : 0
+        let height = size.height != nil ? abs(size.height) : 0
         
         let dictionary = [
             "path":Utility.excludeFileProtocol(path),
