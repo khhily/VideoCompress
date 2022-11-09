@@ -76,8 +76,8 @@ class Utility(private val channelName: String) {
         json.put("path", path)
         json.put("title", title)
         json.put("author", author)
-        json.put("width", width)
-        json.put("height", height)
+        json.put("width", if (width > 0) width else null)
+        json.put("height", if (height > 0) height else null)
         json.put("duration", duration)
         json.put("filesize", file?.length() ?: 0)
         if (ori != null) {

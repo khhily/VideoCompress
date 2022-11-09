@@ -117,8 +117,8 @@ public class SwiftVideoCompressPlugin: NSObject, FlutterPlugin {
             "path":Utility.excludeFileProtocol(path),
             "title":title,
             "author":author,
-            "width":width,
-            "height":height,
+            "width":width > 0 ? width : nil,
+            "height":height > 0 ? height : nil,
             "duration":duration,
             "filesize":filesize,
             "orientation":orientation
