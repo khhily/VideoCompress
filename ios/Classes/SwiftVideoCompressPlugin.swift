@@ -94,25 +94,32 @@ public class SwiftVideoCompressPlugin: NSObject, FlutterPlugin {
     
     public func getMediaInfoJson(_ path: String)->[String : Any?] {
         let url = Utility.getPathUrl(path)
+
         let asset = avController.getVideoAsset(url)
-        guard let track = avController.getTrack(asset) else { return [:] }
-        
+
+        let track = avController.getTrack(asset)
+        // guard let track = avController.getTrack(asset) else { return [:] }
+
         let playerItem = AVPlayerItem(url: url)
         let metadataAsset = playerItem.asset
-        
+
         let orientation = avController.getVideoOrientation(path)
-        
+
         let title = avController.getMetaDataByTag(metadataAsset,key: "title")
         let author = avController.getMetaDataByTag(metadataAsset,key: "author")
-        
+
         let duration = asset.duration.seconds * 1000
-        let filesize = track.totalSampleDataLength
-        
-        let size = track.naturalSize.applying(track.preferredTransform)
-        
-        let width = size.width != nil ? abs(size.width) : 0
-        let height = size.height != nil ? abs(size.height) : 0
-        
+        var filesize: Int64 = 0
+        var width: CGFloat = 0
+        var height: CGFloat = 0
+
+        if (track != nil) {
+            filesize = track!.totalSampleDataLength
+            let size = track!.naturalSize.applying(track!.preferredTransform)
+            width = abs(size.width)
+            height = abs(size.height)
+        }
+
         let dictionary = [
             "path":Utility.excludeFileProtocol(path),
             "title":title,
